@@ -19,6 +19,28 @@ import { initializeDatabase } from "./database";
 import { ensureDecksExist } from "./database/populate-questions";
 import { QuestionScheduler } from "./scheduler";
 
+// Node.js process signal handlers
+
+process.on("uncaughtException", async (error) => {
+	console.error(`Error occurred: ${error}`);
+	if (error.stack) {
+		console.error(error.stack);
+	}
+});
+
+process.on("unhandledRejection", async (reason, promise) => {
+	console.error(`Unhandled Rejection: ${reason}`);
+	// Optionally, log the stack trace of the promise rejection
+	promise.catch((error) => {
+		console.error(error);
+		if (error.stack) {
+			console.error(error.stack);
+		}
+	});
+});
+
+// Bot
+
 interface Command {
 	data: SlashCommandOptionsOnlyBuilder,
 
@@ -133,10 +155,10 @@ client.on(Events.InteractionCreate, async (interaction) => {
 		const reply = { content: "There was an error while executing this command!", ephemeral: true };
 
 		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp(reply);
+			await interaction.followUp(reply).catch(console.error)
 		}
 		else {
-			await interaction.reply(reply);
+			await interaction.reply(reply).catch(console.error);
 		}
 	}
 });
