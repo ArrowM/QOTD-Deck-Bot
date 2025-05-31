@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./data:/app/qotd.db # Bind mount for database
+      - ./qotd.db:/app/qotd.db # Bind mount for database
       - ./.env:/app/.env # Bind mount for .env file
     container_name: qotd-deck-bot
     restart: always

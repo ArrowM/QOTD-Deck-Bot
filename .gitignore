@@ -1,6 +1,8 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
 .env
+/qotd.db
+/drizzle/
 
 # Logs
 
@@ -177,14 +179,8 @@ dist
 # Finder (MacOS) folder config
 .DS_Store
 
-data/manual/main.sqlite
-data/backups/
-data/sql-generation-script/legacy-export/
-
 # VS Code Workspace
 .vscode/
 
 # VS Code Workspace Files
 *.code-workspace
-/qotd.db
-/drizzle/
