@@ -1,0 +1,16 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/app/qotd.db # Bind mount for database
+      - ./.env:/app/.env # Bind mount for .env file
+    container_name: qotd-deck-bot
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "5"
+    stdin_open: true  # Allow stdin to be open
+    tty: true  # Allocate a pseudo-TTY
