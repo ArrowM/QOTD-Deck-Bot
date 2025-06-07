@@ -14,9 +14,8 @@ Update the `.env` file with your bot's `DISCORD_TOKEN` and `CLIENT_ID`.
 Clone, install dependencies, and create the database
 ```shell
 git clone https://github.com/ArrowM/QOTD-Deck-Bot
-npm install
-db:generate
-db:migrate
+cd QOTD-Deck-Bot
+chmod +x launch-docker.sh
 ```
 
 ### Running the bot

@@ -1,15 +1,14 @@
 import { eq } from "drizzle-orm";
 
 import { DeckService } from "../services/deck-service";
-import { QuestionService } from "../services/question-service"; // Added import
+import { QuestionService } from "../services/question-service";
 import { db } from "./index";
 import { decks, questions } from "./schema";
 
-// Question deck data
 const questionDecks = [
 	{
-		name: "General Conversation Starters",
-		description: "Engaging questions for anyone to spark interesting discussions",
+		name: "General",
+		description: "General questions and conversation starters",
 		questions: [
 			"What's the most interesting conversation you've had with a stranger?",
 			"If you could master any skill instantly, what would it be and why?",
@@ -188,7 +187,7 @@ const questionDecks = [
 	},
 	{
 		name: "Fun & Light-hearted",
-		description: "Silly, fun questions to bring out laughter and playful conversation",
+		description: "Silly questions",
 		questions: [
 			"If your life had a soundtrack, what genre would it be?",
 			"What's the weirdest thing you've ever eaten and actually liked?",
