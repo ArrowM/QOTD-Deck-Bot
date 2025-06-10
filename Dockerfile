@@ -20,6 +20,6 @@ COPY . .
 CMD ["npm", "run", "db:migrate"]
 
 # ---- Production ----
-FROM dependencies AS production
+FROM data AS production
 
 ENTRYPOINT ["npm", "start"]
