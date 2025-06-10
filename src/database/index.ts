@@ -4,7 +4,7 @@ import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 
 import * as schema from "./schema";
 
-const sqlite = new Database("qotd.db");
+const sqlite = new Database("data/qotd.db");
 export const db = drizzle(sqlite, { schema });
 
 // Initialize database

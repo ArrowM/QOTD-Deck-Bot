@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       target: data
     volumes:
-      - ./qotd.db:/app/qotd.db
+      - ./data:/app/data
       - ./.env:/app/.env
 
   app:
@@ -14,7 +14,7 @@ services:
       dockerfile: Dockerfile
       target: production
     volumes:
-      - ./qotd.db:/app/qotd.db
+      - ./data:/app/data
       - ./.env:/app/.env
     container_name: qotd-deck-bot
     restart: always
