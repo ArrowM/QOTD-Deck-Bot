@@ -9,14 +9,17 @@ COPY package*.json ./
 # ---- Dependencies ----
 FROM base AS dependencies
 
-# Install npm dependencies
 RUN npm ci
 
-# ---- Production ----
-FROM dependencies AS production
+# ---- Data ----
+FROM dependencies AS data
 
 # Copy all source files
 COPY . .
 
-# Default command to start the application
+CMD ["npm", "run", "db:migrate"]
+
+# ---- Production ----
+FROM dependencies AS production
+
 ENTRYPOINT ["npm", "start"]
