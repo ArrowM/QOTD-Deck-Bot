@@ -59,17 +59,6 @@ export const helpCommands = {
 					inline: false,
 				},
 				{
-					name: "🗓️ Cron Schedules",
-					value: "The bot uses cron syntax for scheduling (e.g., `0 9 * * *` for 9 AM daily).\n" +
-						"Common presets like `@daily`, `@weekly` are available via autocomplete.\n" +
-						"Examples:\n" +
-						"  • `0 9 * * *` - Every day at 9:00 AM\n" +
-						"  • `0 12 * * MON-FRI` - Weekdays at 12:00 PM\n" +
-						"  • `@weekly` - Every Sunday at midnight\n" +
-						"Use an online tool like [crontab.guru](https://crontab.guru/) to build schedules.",
-					inline: false,
-				},
-				{
 					name: "💡 Example Usage",
 					value: "```\n" +
 						"/deck-create name:\"Team Trivia\" description:\"Weekly trivia\"\n" +
