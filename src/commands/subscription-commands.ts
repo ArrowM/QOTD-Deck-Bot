@@ -24,7 +24,7 @@ export const subscriptionCommands = [
 			.setDescription("Subscribe this channel to question decks")
 			.addStringOption(option =>
 				option.setName("schedule")
-					.setDescription("How often to post questions")
+					.setDescription("How often to post questions (accepts cron format, e.g. '0 9 * * *' for daily at 9 AM)")
 					.setRequired(true)
 					.setAutocomplete(true)),
 		async execute(interaction: ChatInputCommandInteraction) {

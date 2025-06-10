@@ -64,7 +64,7 @@ export const helpCommands = {
 						"/deck-create name:\"Team Trivia\" description:\"Weekly trivia\"\n" +
 						"/question-add deck:\"Team Trivia\" question:\"Capital of France?\"\n" +
 						"/deck-replace name:\"Team Trivia\" all_questions:\"What is 2+2?? Who painted the Mona Lisa?\"\n" +
-						"/subscribe schedule:\"0 10 * * MON-FRI\"\n" +
+						"/subscribe schedule:\"Daily at 9 AM\"\n" +
 						"```\n" +
 						"After `/subscribe`, you'll be prompted to select decks for the subscription.",
 					inline: false,

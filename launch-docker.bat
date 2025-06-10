@@ -1,42 +1,52 @@
 @echo off
-rem Set the container name
-set CONTAINER_NAME=qotd-deck-bot
+setlocal
+
+set "CONTAINER_NAME=qotd-deck-bot"
+
+rem Windows fails to set paths correctly with COMPOSE_BAKE
+set "COMPOSE_BAKE=false"
 
 rem Check if the container is running
-docker ps -q -f name=%CONTAINER_NAME% > nul 2>&1
-if %errorlevel% equ 0 (
+for /f %%i in ('docker ps -q -f name=%CONTAINER_NAME%') do set "CID=%%i"
+if not defined CID (
+    echo Container %CONTAINER_NAME% is not running. Skipping log saving.
+) else (
     rem Create a dated log file name
-    set LOG_FILE=logs\%CONTAINER_NAME%_%date:~10,4%-%date:~4,2%-%date:~7,2%_%time:~0,2%-%time:~3,2%-%time:~6,2%.log
+    for /f "tokens=1-3 delims=/- " %%a in ("%date%") do (
+        set "YYYY=%%c"
+        set "MM=%%a"
+        set "DD=%%b"
+    )
+    for /f "tokens=1-3 delims=:." %%a in ("%time%") do (
+        set "HH=%%a"
+        set "NN=%%b"
+        set "SS=%%c"
+    )
+    set "LOG_FILE=logs\%CONTAINER_NAME%_%YYYY%-%MM%-%DD%_%HH%-%NN%-%SS%.log"
 
-    rem Save the logs to the file
-    mkdir logs 2>nul
-    docker logs %CONTAINER_NAME% > %LOG_FILE%
+    if not exist logs mkdir logs
+    docker logs %CONTAINER_NAME% > "%LOG_FILE%"
 
-    rem Check if the logs were saved successfully
-    if %errorlevel% equ 0 (
+    if "%ERRORLEVEL%"=="0" (
         echo Logs saved to %LOG_FILE%
     ) else (
         echo Failed to save logs
         exit /b 1
     )
-) else (
-    echo Container %CONTAINER_NAME% is not running. Skipping log saving.
 )
 
-# Fetch the latest changes from the remote repository
+rem Fetch the latest changes from the remote repository
 git fetch
 
-# Merge the fetched changes with a custom commit message
+rem Merge the fetched changes with a custom commit message
 git merge --no-ff -m "Merged changes from remote repository."
 
 docker-compose down
-
-npx drizzle-kit push
 
 docker-compose up -d --build
 
 docker image prune -f
 
-echo "Attaching to container ${CONTAINER_NAME}... (CTRL+p CTRL+q to detach)"
+echo Attaching to container %CONTAINER_NAME%... (CTRL+p CTRL+q to detach)
 
-docker logs -f qotd-deck-bot
+docker logs -f %CONTAINER_NAME%
