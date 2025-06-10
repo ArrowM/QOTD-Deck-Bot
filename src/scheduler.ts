@@ -55,18 +55,38 @@ export class QuestionScheduler {
 			const subscriptionData = await SubscriptionService.getSubscription(channelId);
 			if (!subscriptionData || subscriptionData.decks.length === 0) return;
 
-			const { subscription, decks } = subscriptionData;
+			const { decks } = subscriptionData;
 
-			// Select current deck based on currentDeckIndex (cycling through decks)
-			const currentDeck = decks[subscription.currentDeckIndex % decks.length];
-			const deckQuestions = await QuestionService.getQuestionsByDeck(currentDeck.deck.id);
+			// Fetch all deck questions and calculate remaining unposted questions
+			const deckInfo = await Promise.all(decks.map(async (deckData) => {
+				const questions = await QuestionService.getQuestionsByDeck(deckData.deck.id);
+				const totalQuestions = questions.length;
+				// How many questions are left before we reach the end of this deck
+				const remainingQuestions = totalQuestions > 0
+					? totalQuestions - deckData.currentQuestionIndex
+					: 0;
 
-			if (deckQuestions.length === 0) {
-				// If current deck has no questions, try the next deck
-				await this.tryNextDeck(channelId, subscription, decks);
+				return {
+					deckData,
+					questions,
+					remainingQuestions,
+				};
+			}));
+
+			// Filter out decks with no questions
+			const validDeckInfo = deckInfo.filter(info => info.questions.length > 0);
+
+			if (validDeckInfo.length === 0) {
+				console.warn(`No decks with questions for channel ${channelId}`);
 				return;
 			}
 
+			// Select a deck using weighted probability based on remaining questions
+			const selectedDeckInfo = this.selectDeckByWeight(validDeckInfo);
+			const currentDeck = selectedDeckInfo.deckData;
+			const deckQuestions = selectedDeckInfo.questions;
+
+			// Get the current question
 			const question = deckQuestions[currentDeck.currentQuestionIndex];
 			if (!question) {
 				// If current question doesn't exist, reset to first question
@@ -74,7 +94,7 @@ export class QuestionScheduler {
 				return;
 			}
 
-			// Create embed with deck cycling info
+			// Create embed with deck information
 			const embed = new EmbedBuilder()
 				.setTitle(question.question)
 				.addFields(
@@ -83,15 +103,18 @@ export class QuestionScheduler {
 						name: "Question",
 						value: `${currentDeck.currentQuestionIndex + 1} of ${deckQuestions.length}`,
 						inline: true,
-					},
-					{
-						name: "Deck Progress",
-						value: `${subscription.currentDeckIndex + 1} of ${decks.length} decks`,
-						inline: true,
-					},
+					}
 				)
 				.setColor(0x0099ff)
 				.setTimestamp();
+
+			// Add contextual information about remaining questions
+			const totalRemaining = validDeckInfo.reduce((sum, info) => sum + info.remainingQuestions, 0);
+			embed.addFields({
+				name: "Progress",
+				value: `${totalRemaining} questions remaining across ${validDeckInfo.length} decks`,
+				inline: false,
+			});
 
 			await channel.send({ embeds: [embed] });
 
@@ -99,38 +122,54 @@ export class QuestionScheduler {
 			const nextQuestionIndex = (currentDeck.currentQuestionIndex + 1) % deckQuestions.length;
 			await SubscriptionService.updateQuestionIndex(channelId, currentDeck.deck.id, nextQuestionIndex);
 
-			// If we've completed this deck (back to question 0), move to next deck
+			// If we're cycling back to the first question, update the currentDeckIndex in the subscription
+			// This maintains compatibility with the subscription UI that shows current deck
 			if (nextQuestionIndex === 0) {
-				const nextDeckIndex = (subscription.currentDeckIndex + 1) % decks.length;
-				await SubscriptionService.updateCurrentDeckIndex(channelId, nextDeckIndex);
+				// Find the index of current deck in the decks array
+				const currentDeckIndex = decks.findIndex(d => d.deck.id === currentDeck.deck.id);
+				if (currentDeckIndex >= 0) {
+					// Move to next deck in the UI display
+					const nextDeckIndex = (currentDeckIndex + 1) % decks.length;
+					await SubscriptionService.updateCurrentDeckIndex(channelId, nextDeckIndex);
+				}
 			}
-
 		}
 		catch (error) {
 			console.error(`Failed to post question for channel ${channelId}:`, error);
 		}
 	}
 
-	private async tryNextDeck(channelId: string, subscription: any, decks: any[], attempts = 0) {
-		// Prevent infinite loop if all decks are empty
-		if (attempts >= decks.length) {
-			console.warn(`All decks empty for channel ${channelId}`);
-			return;
+	/**
+	 * Select a deck using weighted probability based on remaining questions
+	 */
+	private selectDeckByWeight(deckInfo: Array<{
+		deckData: any;
+		questions: any[];
+		remainingQuestions: number;
+	}>) {
+		// Calculate total weight (sum of all remaining questions)
+		const totalWeight = deckInfo.reduce((sum, info) => sum + info.remainingQuestions, 0);
+
+		// If all decks have completed their cycles, treat all as equal weight
+		if (totalWeight === 0) {
+			// All decks have used all questions, select randomly with equal probability
+			const randomIndex = Math.floor(Math.random() * deckInfo.length);
+			return deckInfo[randomIndex];
 		}
 
-		const nextDeckIndex = (subscription.currentDeckIndex + 1) % decks.length;
-		await SubscriptionService.updateCurrentDeckIndex(channelId, nextDeckIndex);
+		// Generate a random value between 0 and totalWeight
+		const randomValue = Math.random() * totalWeight;
 
-		// Try posting again with the next deck
-		const nextDeck = decks[nextDeckIndex];
-		const nextDeckQuestions = await QuestionService.getQuestionsByDeck(nextDeck.deck.id);
+		// Select a deck based on weighted probability
+		let weightSum = 0;
+		for (const info of deckInfo) {
+			weightSum += info.remainingQuestions;
+			if (randomValue <= weightSum) {
+				return info;
+			}
+		}
 
-		if (nextDeckQuestions.length === 0) {
-			await this.tryNextDeck(channelId, { ...subscription, currentDeckIndex: nextDeckIndex }, decks, attempts + 1);
-		}
-		else {
-			// Post from the next deck
-			await this.postQuestion(channelId);
-		}
+		// Fallback (should not happen unless there's a calculation error)
+		return deckInfo[0];
 	}
 }

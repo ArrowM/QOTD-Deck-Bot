@@ -19,20 +19,15 @@ export const deckCommands = [
 			.addStringOption(option =>
 				option.setName("name")
 					.setDescription("Name of the deck")
-					.setRequired(true))
-			.addStringOption(option =>
-				option.setName("description")
-					.setDescription("Description of the deck")
-					.setRequired(false)),
+					.setRequired(true)),
 		async execute(interaction: ChatInputCommandInteraction) {
 			if (!await checkModificationPermissions(interaction)) return;
 
 			const name = interaction.options.getString("name", true);
-			const description = interaction.options.getString("description") || undefined;
 			const guildId = interaction.guildId!;
 
 			try {
-				const deck = await DeckService.createDeck(name, guildId, description);
+				const deck = await DeckService.createDeck(name, guildId);
 				const embed = new EmbedBuilder()
 					.setTitle("✅ Deck Created")
 					.setDescription(`Created deck "${deck.name}" with ID ${deck.id}`)
@@ -113,10 +108,16 @@ export const deckCommands = [
 					.setColor(0x0099ff)
 					.setTimestamp();
 
+				decks.sort((a, b) => a.name.localeCompare(b.name));
+
+				// Get question counts for all decks
 				for (const deck of decks) {
+					const questions = await QuestionService.getQuestionsByDeck(deck.id);
+					const questionCount = questions.length;
+
 					embed.addFields({
 						name: `${deck.name}`,
-						value: deck.description || "No description",
+						value: `Questions: ${questionCount}`,
 						inline: false,
 					});
 				}
@@ -154,8 +155,7 @@ export const deckCommands = [
 					return;
 				}
 
-				let descriptionContent = deckWithQuestions.description || "No description";
-				descriptionContent += "\n\n**Questions:**\n";
+				let descriptionContent = "**Questions:**\n";
 				descriptionContent += deckWithQuestions.questions.map((q) => `${q.question}`).join("\n\n");
 
 				const mainEmbed = new EmbedBuilder()
@@ -180,7 +180,7 @@ export const deckCommands = [
 	{
 		data: new SlashCommandBuilder()
 			.setName("deck-rename")
-			.setDescription("Rename an existing question deck and optionally update its description")
+			.setDescription("Rename an existing question deck")
 			.addStringOption(option =>
 				option.setName("old_name")
 					.setDescription("Current name of the deck")
@@ -189,17 +189,12 @@ export const deckCommands = [
 			.addStringOption(option =>
 				option.setName("new_name")
 					.setDescription("New name for the deck")
-					.setRequired(true))
-			.addStringOption(option =>
-				option.setName("description")
-					.setDescription("New description for the deck (leave empty to keep current)")
-					.setRequired(false)),
+					.setRequired(true)),
 		async execute(interaction: ChatInputCommandInteraction) {
 			if (!await checkModificationPermissions(interaction)) return;
 
 			const oldName = interaction.options.getString("old_name", true);
 			const newName = interaction.options.getString("new_name", true);
-			const newDescription = interaction.options.getString("description");
 			const guildId = interaction.guildId!;
 
 			try {
@@ -209,11 +204,7 @@ export const deckCommands = [
 					return;
 				}
 
-				await DeckService.renameDeck(
-					deck.id,
-					newName,
-					newDescription !== null ? newDescription : undefined,
-				);
+				await DeckService.renameDeck(deck.id, newName);
 
 				const embed = new EmbedBuilder()
 					.setTitle("✏️ Deck Updated")
@@ -221,13 +212,6 @@ export const deckCommands = [
 					.addFields({ name: "New Name", value: newName })
 					.setColor(0x00ff00)
 					.setTimestamp();
-
-				if (newDescription !== null) {
-					embed.addFields({
-						name: "New Description",
-						value: newDescription || "*No description*",
-					});
-				}
 
 				await interaction.reply({ embeds: [embed] });
 			}

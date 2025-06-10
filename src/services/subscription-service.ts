@@ -3,6 +3,7 @@ import { and, eq, sql } from "drizzle-orm";
 import { db } from "../database";
 import { decks, subscriptionDecks, subscriptions } from "../database/schema";
 import { questionScheduler } from "../index"; // Adjusted import path assuming index.ts is in src/
+import { QuestionService } from "./question-service";
 
 export interface SubscriptionWithDecks {
 	subscription: typeof subscriptions.$inferSelect;
@@ -280,5 +281,13 @@ export class SubscriptionService {
 
 			return true;
 		});
+	}
+
+	static async getUnpostedQuestionCount(deckId: number, currentQuestionIndex: number) {
+		const questions = await QuestionService.getQuestionsByDeck(deckId);
+		const total = questions.length;
+		const remaining = total > 0 ? total - currentQuestionIndex : 0;
+
+		return { total, remaining };
 	}
 }

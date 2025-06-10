@@ -4,7 +4,6 @@ export const decks = sqliteTable("decks", {
 	id: integer("id").primaryKey({ autoIncrement: true }),
 	guildId: text("guild_id").notNull(),
 	name: text("name").notNull(),
-	description: text("description"),
 	createdAt: integer("created_at", { mode: "timestamp" }).notNull().$defaultFn(() => new Date()),
 }, (table) => ({
 	// Name should be unique within a guild

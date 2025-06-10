@@ -4,11 +4,10 @@ import { db } from "../database";
 import { decks, questions } from "../database/schema";
 
 export class DeckService {
-	static async createDeck(name: string, guildId: string, description?: string) {
+	static async createDeck(name: string, guildId: string) {
 		const [deck] = await db.insert(decks).values({
 			name,
 			guildId,
-			description,
 		}).returning();
 		return deck;
 	}
@@ -51,18 +50,9 @@ export class DeckService {
 		return { ...deck, questions: deckQuestions };
 	}
 
-	static async renameDeck(deckId: number, newName: string, newDescription?: string) {
-		const updateData: { name: string; description?: string } = {
-			name: newName,
-		};
-
-		// Only include description in the update if it's provided
-		if (newDescription !== undefined) {
-			updateData.description = newDescription;
-		}
-
+	static async renameDeck(deckId: number, newName: string) {
 		const [updated] = await db.update(decks)
-			.set(updateData)
+			.set({ name: newName })
 			.where(eq(decks.id, deckId))
 			.returning();
 

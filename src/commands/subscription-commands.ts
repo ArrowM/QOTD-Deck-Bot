@@ -183,18 +183,22 @@ export const subscriptionCommands = [
 							value: `${subscription.currentDeckIndex + 1} of ${decks.length}: ${decks[subscription.currentDeckIndex]?.deck.name || "Unknown"}`,
 							inline: false,
 						},
+						{ name: "Selection Method", value: "Decks are selected randomly with probability based on remaining unposted questions", inline: false },
 						{ name: "Status", value: subscription.isActive ? "🟢 Active" : "🔴 Inactive", inline: true },
 					)
 					.setColor(0x0099ff)
 					.setTimestamp();
 
-				const deckDetails = decks.map((deckData, index) => {
+				// Display both currentDeckIndex (for UI) and question index for each deck
+				const deckDetails = await Promise.all(decks.map(async (deckData, index) => {
 					const isCurrentDeck = index === subscription.currentDeckIndex;
 					const indicator = isCurrentDeck ? "👉 " : "";
-					return `${indicator}**${deckData.deck.name}** - Question ${deckData.currentQuestionIndex + 1}`;
-				}).join("\n");
 
-				embed.addFields({ name: "Decks", value: deckDetails || "No decks", inline: false });
+					const questions = await SubscriptionService.getUnpostedQuestionCount(deckData.deck.id, deckData.currentQuestionIndex);
+					return `${indicator}**${deckData.deck.name}** - Question ${deckData.currentQuestionIndex + 1} (${questions.remaining} questions remaining of ${questions.total})`;
+				}));
+
+				embed.addFields({ name: "Decks", value: deckDetails.join("\n") || "No decks", inline: false });
 
 				await interaction.reply({ embeds: [embed] });
 			}

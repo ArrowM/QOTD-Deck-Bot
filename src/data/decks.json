@@ -1,0 +1,88 @@
+[
+  {
+    "name": "General",
+    "questions": [
+      "What are you looking forward to this week?",
+      "What's a quote that changed your perspective?",
+      "What's a long term goal that you are working on?",
+      "What's a piece of advice that you rarely have a chance to give?",
+      "What's the best advice you've ever received, and who gave it to you?",
+      "What's a hobby or interest you have that most people don't know about?",
+      "What's your favorite picture/video of your pet?",
+      "If you could bring back one trend from the past, what would it be?",
+      "What's the most memorable gift you've ever given or received?",
+      "What's something you thought you'd hate but ended up loving?",
+      "If you had to create a new holiday, what would it celebrate and how?",
+      "What's the weirdest food combination you secretly enjoy?",
+      "What's the worst book, show, or video game that you have finished?",
+      "What volunteering opportunity do you recommend?",
+      "What's a food that, if blended, would make an unconventional yet delicious soup?",
+      "What free things should everyone take advantage of?",
+      "What's a hack in your industry that customers aren't supposed to find out?",
+      "Where do you meet new people?",
+      "What's a skill you've always wanted to learn but haven't gotten around to yet?",
+      "If your life had a soundtrack, what would be the title of the current chapter's theme song?",
+      "What's something you were absolutely convinced of as a child that turned out to be hilariously wrong?",
+      "What's a small hill you're willing to die on that most people wouldn't care about?",
+      "What's the most interesting 'rabbit hole' you've fallen down recently?",
+      "What's an obscure fact you know that surprises people when you share it?"
+    ]
+  },
+  {
+    "name": "Local",
+    "questions": [
+      "What's your favorite museum or art exhibit that you visited?",
+      "What's your favorite outdoors-y place?",
+      "What's a local restaurant (and possibly a dish) you would recommend?",
+      "What's a local brewery you recommend?",
+      "What's the most underrated state park in Minnesota?",
+      "Do you actually enjoy going to the Mall of America?",
+      "What was your most recent \"Uff da\" moment?",
+      "What's the most 'Minnesota' thing you've ever experienced?",
+      "What's your go-to activity when showing out-of-town visitors around?",
+      "Which local festival or event do you look forward to the most?"
+    ]
+  },
+  {
+    "name": "Entertainment",
+    "questions": [
+      "What's a book, movie, or show that completely changed your perspective on something?",
+      "If you could live in any fictional world for a week, where would you go?",
+      "What's the most interesting documentary or podcast you've watched/listened to recently?",
+      "What's a small YouTube channel that deserves more love?",
+      "What's an indie game that you think everyone should play?",
+      "What's your \"comfort\" game—the one you always go back to when you just want to relax?",
+      "What's a piece of media that you wish would get a prequel or sequel?",
+      "What's your favorite video game boss?",
+      "What game do you have the most time in? Would you recommend it?",
+      "What's your favorite world/environment from a piece of media?",
+      "What's one change you would make to a popular piece of media that would make it way better?"
+    ]
+  },
+  {
+    "name": "LGBTQ+",
+    "questions": [
+      "What's a piece of LGBTQ+ media that really resonated with you?",
+      "What gives you gender euphoria?",
+      "What's a tradition or celebration in your life that feels uniquely meaningful to you?",
+      "What's something you wish more people understood about your experience?",
+      "If you could make one LGBTQ+ book/movie/show required reading/viewing, what would it be?",
+      "What's a stereotype about your identity that you'd love to debunk?",
+      "What's a compliment related to your identity that really meant a lot to you?",
+      "If you could design the perfect Pride parade float, what would be its theme?",
+      "What aspect of transitioning has surprised you?"
+    ]
+  },
+  {
+    "name": "Convince Me",
+    "questions": [
+      "Convince me that a physical book is an objectively better experience than an e-reader in every meaningful way, not just a nostalgic preference.",
+      "Convince me there is one, single, objectively correct way to load a dishwasher, and all other methods are chaos.",
+      "Convince me that a manual transmission car is still the superior driving experience, even in rush-hour traffic.",
+      "Convince me that the 'found footage' genre is the most creative and immersive form of horror filmmaking, not a lazy gimmick.",
+      "Convince me that reality TV competitions (Survivor, The Great British Bake Off, etc.) are modern society's most effective vehicle for studying human nature.",
+      "Convince me that Daylight Saving Time is a brilliant and beneficial system that we should absolutely keep.",
+      "Convince me that I need an air fryer in my kitchen, and that it will change my cooking life forever."
+    ]
+  }
+]

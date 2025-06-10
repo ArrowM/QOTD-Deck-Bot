@@ -16,7 +16,7 @@ import { questionCommands } from "./commands/question-commands";
 import { roleCommands } from "./commands/role-commands";
 import { subscriptionCommands } from "./commands/subscription-commands";
 import { initializeDatabase } from "./database";
-import { ensureDecksExist } from "./database/populate-questions";
+import { ensureDecksExist, loadDeckData } from "./database/populate-questions"; // Import the function to load deck data
 import { QuestionScheduler } from "./scheduler";
 
 // Node.js process signal handlers
@@ -73,7 +73,31 @@ client.once(Events.ClientReady, async (readyClient) => {
 
 	// Initialize scheduler
 	await questionScheduler.initialize();
+
+	// Ensure decks exist for all guilds the bot is already in
+	console.log(`Ensuring decks exist for all ${readyClient.guilds.cache.size} guilds...`);
+	const guildsPromises = readyClient.guilds.cache.map(guild => {
+		console.log(`Checking decks for guild: ${guild.name} (ID: ${guild.id})`);
+		return ensureDecksExist(guild.id);
+	});
+
+	try {
+		await Promise.all(guildsPromises);
+		console.log("Finished ensuring decks for all guilds");
+	} catch (error) {
+		console.error("Error ensuring decks for all guilds:", error);
+	}
 });
+
+// Helper function to get formatted deck names
+function getFormattedDeckList(): string {
+	const deckData = loadDeckData();
+	if (deckData.length === 0) {
+		return "• Various question categories";
+	}
+
+	return deckData.map(deck => `• ${deck.name}`).join('\n');
+}
 
 // Handle when bot joins a new guild
 client.on(Events.GuildCreate, async (guild) => {
@@ -81,6 +105,11 @@ client.on(Events.GuildCreate, async (guild) => {
 
 	// Ensure decks are available (in case this is the first guild and bot just started)
 	await ensureDecksExist(guild.id);
+
+	// Get the deck names from the JSON file
+	const deckList = getFormattedDeckList();
+	const totalDecks = loadDeckData().length;
+	const totalQuestions = loadDeckData().reduce((sum, deck) => sum + deck.questions.length, 0);
 
 	// Send a welcome message to the system channel or first available text channel
 	try {
@@ -99,12 +128,8 @@ client.on(Events.GuildCreate, async (guild) => {
 						"• Use `/subscription add` to set up daily questions in a channel\n" +
 						"• Use `/deck list` to see available question decks\n" +
 						"• Use `/help` for all available commands\n\n" +
-						"I've automatically loaded 5 starter question decks with 100 total questions covering:\n" +
-						"• General conversation starters\n" +
-						"• LGBTQ+ community & pride topics\n" +
-						"• Creative & imagination prompts\n" +
-						"• Personal growth & reflection\n" +
-						"• Fun & light-hearted questions",
+						`I've automatically loaded ${totalDecks} starter question decks with ${totalQuestions} total questions covering:\n` +
+						`${deckList}`,
 					color: 0x5865F2,
 					footer: {
 						text: "Ready to start meaningful conversations!",
@@ -155,7 +180,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 		const reply = { content: "There was an error while executing this command!", ephemeral: true };
 
 		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp(reply).catch(console.error)
+			await interaction.followUp(reply).catch(console.error);
 		}
 		else {
 			await interaction.reply(reply).catch(console.error);
