@@ -155,7 +155,10 @@ export const deckCommands = [
 					return;
 				}
 
-				let descriptionContent = "**Questions:**\n";
+				let descriptionContent = "Use `/question-add` to add new questions to this deck.\n";
+				descriptionContent += "Use `/deck-replace` to replace all questions at once.\n";
+				descriptionContent += "Use `/question-edit` or `/question-delete` to modify specific questions.\n\n";
+				descriptionContent += "**Questions:**\n";
 				descriptionContent += deckWithQuestions.questions.map((q) => `${q.question}`).join("\n\n");
 
 				const mainEmbed = new EmbedBuilder()
